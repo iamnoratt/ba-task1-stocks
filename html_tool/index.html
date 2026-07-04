@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indicator Lab Prototype</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --line: #dfe5ef;
+      --text: #1f2937;
+      --muted: #667085;
+      --green: #27ae60;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #f7fafc 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .sidebar, .content {
+      min-width: 0;
+    }
+    .card, .chart-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+    .card {
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .card h3, .chart-panel h3 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+    }
+    .stock-select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 0.98rem;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .summary strong {
+      display: block;
+      font-size: 1.6rem;
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      background: #eef6ff;
+      color: #1d4ed8;
+    }
+    .slider-row {
+      margin: 12px 0;
+    }
+    .slider-row label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    .indicator-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+      font-size: 0.92rem;
+    }
+    .indicator-stats div {
+      padding: 10px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .toolbar button {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 12px;
+      background: #fff;
+      color: var(--muted);
+      cursor: default;
+    }
+    .toolbar button.active {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+    .chart-panel {
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .chart-box {
+      height: 280px;
+      border-radius: 16px;
+      background:
+        linear-gradient(to bottom, rgba(148,163,184,0.15) 1px, transparent 1px) 0 0 / 100% 56px,
+        linear-gradient(to right, rgba(148,163,184,0.08) 1px, transparent 1px) 0 0 / 120px 100%,
+        #ffffff;
+      border: 1px solid #eef2f7;
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-box.small {
+      height: 180px;
+    }
+    .line {
+      position: absolute;
+      left: 4%;
+      right: 4%;
+      top: 0;
+      bottom: 0;
+      opacity: 0.9;
+    }
+    .hint {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      background: currentColor;
+    }
+    .green { color: var(--green); }
+    .blue { color: var(--blue); }
+    .red { color: var(--red); }
+    .gray { color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="card">
+        <h3>选择股票</h3>
+        <select class="stock-select">
+          <option>中国巨石 - 600176</option>
+          <option>中际旭创 - 300308</option>
+        </select>
+        <div class="summary">
+          <div>
+            <strong>70.90</strong>
+            <span>收盘价</span>
+          </div>
+          <div>
+            <strong class="green">+4.54%</strong>
+            <span>涨跌幅</span>
+          </div>
+        </div>
+        <div class="metric-row"><span>日期范围</span><span>2024-01-02 ~ 2026-07-03</span></div>
+      </section>
+
+      <section class="card">
+        <h3><span class="green">●</span> BOLL - 布林带</h3>
+        <div class="slider-row">
+          <label><span>周期 N</span><span>20</span></label>
+          <input type="range" min="5" max="60" value="20">
+        </div>
+        <div class="slider-row">
+          <label><span>倍数 K</span><span>2.0</span></label>
+          <input type="range" min="1" max="4" value="2">
+        </div>
+        <div class="indicator-stats">
+          <div><strong>96.84</strong><br>上轨</div>
+          <div><strong>82.98</strong><br>中轨</div>
+          <div><strong>69.13</strong><br>下轨</div>
+          <div><strong>33.4%</strong><br>带宽</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3><span class="blue">●</span> RSI - 相对强弱指标</h3>
+        <div class="slider-row">
+          <label><span>周期 N</span><span>14</span></label>
+          <input type="range" min="2" max="50" value="14">
+        </div>
+        <div class="indicator-stats">
+          <div><strong>21.8</strong><br>最新值</div>
+          <div><span class="chip">超卖</span><br>状态</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3><span class="red">●</span> MACD - 异同移动平均线</h3>
+        <div class="slider-row">
+          <label><span>Fast</span><span>12</span></label>
+          <input type="range" min="5" max="20" value="12">
+        </div>
+        <div class="slider-row">
+          <label><span>Slow</span><span>26</span></label>
+          <input type="range" min="10" max="50" value="26">
+        </div>
+        <div class="slider-row">
+          <label><span>Signal</span><span>9</span></label>
+          <input type="range" min="3" max="20" value="9">
+        </div>
+      </section>
+    </aside>
+
+    <main class="content">
+      <div class="toolbar">
+        <button class="active">全部</button>
+        <button>1月</button>
+        <button>3月</button>
+        <button>6月</button>
+        <button>1年</button>
+      </div>
+
+      <section class="chart-panel">
+        <h3>价格走势 · 布林带</h3>
+        <div class="legend">
+          <span class="gray">上轨</span>
+          <span class="green">中轨</span>
+          <span class="gray">下轨</span>
+          <span class="red">MA5</span>
+          <span class="gray">MA10</span>
+          <span class="gray">MA20</span>
+          <span class="gray">MA60</span>
+          <span class="blue">收盘价</span>
+        </div>
+        <div class="chart-box">
+          <div class="hint">
+            这里是主图区域。后续接入真实数据后，应该展示价格折线、布林带上下轨、中轨，以及多条均线。
+            第一版先完成布局，第二版再接入参数联动和实时绘图。
+          </div>
+        </div>
+      </section>
+
+      <section class="chart-panel">
+        <h3>RSI</h3>
+        <div class="legend">
+          <span class="blue">RSI(14)</span>
+        </div>
+        <div class="chart-box small">
+          <div class="hint">
+            这里放 RSI 副图。后续建议增加 30 / 70 辅助线，并根据最新值显示“超买”或“超卖”状态。
+          </div>
+        </div>
+      </section>
+
+      <section class="chart-panel">
+        <h3>MACD</h3>
+        <div class="legend">
+          <span class="red">MACD Hist</span>
+          <span class="blue">DIF</span>
+          <span class="gray">DEA</span>
+        </div>
+        <div class="chart-box small">
+          <div class="hint">
+            这里放 MACD 副图。后续建议用柱状图表示 Histogram，用两条折线表示 DIF 和 DEA。
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

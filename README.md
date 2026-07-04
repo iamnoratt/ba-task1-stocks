@@ -1,40 +1,26 @@
-# BA Task1: 中国巨石与中际旭创基础行情分析
+# Task2 Indicator Lab
 
-这个仓库对应量化交易课程第一周 Task1，目标是跑通一次最基础的数据分析闭环：
+这个目录用于完成课程中“指标白盒分析”这一部分作业，重点不是只得到图，而是保留完整过程：
 
-- 获取历史行情数据
-- 生成基础可视化图表
-- 输出静态网页展示页
-- 保留可复现的 Jupyter Notebook
+- 原始数据
+- 指标公式
+- 计算步骤
+- 图表结果
+- HTML 工具原型
 
-## 目录说明
+## 当前目录结构
 
-- `index.html`：静态网页主页，可直接用于 GitHub Pages
-- `figures/`：图表资源
-- `data/`：两只股票的 CSV 数据
-- `notebook/`：Notebook 原始版与已执行版
-- `report/`：报告模板与报告正文
-- `build_task1_assets.py`：数据处理与文件生成脚本
+- `indicator_lab_spec.md`：任务规格说明
+- `raw_data/`：原始 CSV 数据
+- `processed_data/`：后续计算后的指标数据
+- `notebook/`：白盒 Notebook
+- `figures/`：导出图表
+- `html_tool/`：交互工具原型
+- `report/`：作业报告
 
-## 分析标的
+## 建议完成顺序
 
-- 中国巨石（600176）
-- 中际旭创（300308）
-
-## 数据来源
-
-- 腾讯财经公开日线接口
-- 时间范围：`2024-01-02` 到 `2026-07-03`
-- 价格口径：前复权
-
-## 当前成果
-
-- 收盘价对比图
-- 归一化表现图
-- 20 日均线对比图
-- 静态 HTML 页面
-- 可运行 Notebook
-
-## GitHub Pages
-
-发布后可直接通过仓库的 GitHub Pages 链接查看网页成品。
+1. 先跑 `notebook/indicator_lab.ipynb`
+2. 再把计算后的 CSV 放进 `processed_data/`
+3. 再完善 `report/indicator_lab_report.md`
+4. 最后再继续做 `html_tool/index.html`
