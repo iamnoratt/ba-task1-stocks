@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task1 - 中国巨石 & 中际旭创</title>
+  <style>
+    :root {
+      --bg: #f3f5f7;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #5b6777;
+      --accent: #0f766e;
+      --line: #d8dee6;
+    }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #eef6f5 0%, var(--bg) 35%, #eef0f3 100%);
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    .hero {
+      background: radial-gradient(circle at top right, #d5f1ec 0%, #ffffff 45%, #f9fbfc 100%);
+      border: 1px solid rgba(15, 118, 110, 0.12);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+    h1 {
+      font-size: 2.1rem;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      color: var(--muted);
+      max-width: 760px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0 8px;
+    }
+    .card, .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.05);
+    }
+    .section {
+      margin-top: 26px;
+    }
+    img {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      display: block;
+      background: white;
+    }
+    .caption {
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin-top: 10px;
+      background: white;
+      overflow: hidden;
+    }
+    .data-table th, .data-table td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .data-table th {
+      background: #edf7f5;
+    }
+    .footer-note {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Task1: 中国巨石与中际旭创历史行情分析</h1>
+      <p>
+        这是量化交易课程第一周作业的基础版本，目标是跑通“数据获取、基础可视化、网页展示、Notebook复现”这条最小闭环。
+        本页面使用腾讯财经公开日线接口获取前复权数据，并对两只 A 股股票进行简单的价格和走势比较。
+      </p>
+      <div class="grid">
+        
+        <div class="card">
+          <h3>中国巨石</h3>
+          <p><strong>Date range:</strong> 2024-01-02 to 2026-07-03</p>
+          <p><strong>Close price:</strong> 8.90 -> 70.90</p>
+          <p><strong>Total return:</strong> 696.18%</p>
+          <p><strong>Avg volume:</strong> 541021 hands/day</p>
+        </div>
+        
+
+        <div class="card">
+          <h3>中际旭创</h3>
+          <p><strong>Date range:</strong> 2024-01-02 to 2026-07-03</p>
+          <p><strong>Close price:</strong> 77.25 -> 1116.00</p>
+          <p><strong>Total return:</strong> 1344.57%</p>
+          <p><strong>Avg volume:</strong> 349288 hands/day</p>
+        </div>
+        
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>1. 数据说明</h2>
+      <p>
+        标的选择为 <strong>中国巨石（600176）</strong> 和 <strong>中际旭创（300308）</strong>。
+        数据频率为日线，使用前复权价格，时间范围从 2024 年开始到最新可获得交易日。
+      </p>
+      <p>
+        这样做的好处是：一方面能快速稳定地拿到开盘价、收盘价、最高价、最低价和成交量这些核心字段，
+        另一方面前复权价格更适合观察较长时间区间内的走势变化。
+      </p>
+    </section>
+
+    <section class="section panel">
+      <h2>2. 图表展示</h2>
+      <img src="figures/close_price_compare.svg" alt="Close Price Comparison">
+      <p class="caption">图 1：两只股票的收盘价走势。这个图最直观，适合先看原始价格变化。</p>
+
+      <img src="figures/normalized_performance.svg" alt="Normalized Performance" style="margin-top: 18px;">
+      <p class="caption">图 2：把起点统一设为 100 之后，更适合比较哪只股票在同一区间里涨得更多。</p>
+
+      <img src="figures/moving_average_compare.svg" alt="Moving Average Comparison" style="margin-top: 18px;">
+      <p class="caption">图 3：加入 20 日均线后，可以更容易观察价格趋势是否平稳、是否存在加速上涨或回落。</p>
+    </section>
+
+    <section class="section panel">
+      <h2>3. 最近数据预览</h2>
+      <h3>中国巨石 recent 5 trading days</h3><table border="1" class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>date</th>
+      <th>open</th>
+      <th>close</th>
+      <th>high</th>
+      <th>low</th>
+      <th>volume</th>
+      <th>pct_change</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2026-06-29</td>
+      <td>75.53</td>
+      <td>70.98</td>
+      <td>75.53</td>
+      <td>66.80</td>
+      <td>2496641.0</td>
+      <td>-4.236373</td>
+    </tr>
+    <tr>
+      <td>2026-06-30</td>
+      <td>68.50</td>
+      <td>72.88</td>
+      <td>76.99</td>
+      <td>68.01</td>
+      <td>2218754.0</td>
+      <td>2.676810</td>
+    </tr>
+    <tr>
+      <td>2026-07-01</td>
+      <td>73.96</td>
+      <td>70.27</td>
+      <td>75.03</td>
+      <td>69.51</td>
+      <td>1858164.0</td>
+      <td>-3.581229</td>
+    </tr>
+    <tr>
+      <td>2026-07-02</td>
+      <td>67.80</td>
+      <td>67.82</td>
+      <td>71.95</td>
+      <td>63.25</td>
+      <td>1854938.0</td>
+      <td>-3.486552</td>
+    </tr>
+    <tr>
+      <td>2026-07-03</td>
+      <td>68.18</td>
+      <td>70.90</td>
+      <td>74.60</td>
+      <td>65.51</td>
+      <td>2321014.0</td>
+      <td>4.541433</td>
+    </tr>
+  </tbody>
+</table><h3>中际旭创 recent 5 trading days</h3><table border="1" class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>date</th>
+      <th>open</th>
+      <th>close</th>
+      <th>high</th>
+      <th>low</th>
+      <th>volume</th>
+      <th>pct_change</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2026-06-29</td>
+      <td>1239.00</td>
+      <td>1220.00</td>
+      <td>1264.21</td>
+      <td>1169.49</td>
+      <td>352899.0</td>
+      <td>-2.702789</td>
+    </tr>
+    <tr>
+      <td>2026-06-30</td>
+      <td>1223.01</td>
+      <td>1270.00</td>
+      <td>1295.60</td>
+      <td>1218.21</td>
+      <td>276783.0</td>
+      <td>4.098361</td>
+    </tr>
+    <tr>
+      <td>2026-07-01</td>
+      <td>1263.50</td>
+      <td>1223.17</td>
+      <td>1315.57</td>
+      <td>1208.00</td>
+      <td>271557.0</td>
+      <td>-3.687402</td>
+    </tr>
+    <tr>
+      <td>2026-07-02</td>
+      <td>1160.00</td>
+      <td>1143.00</td>
+      <td>1198.00</td>
+      <td>1127.40</td>
+      <td>317620.0</td>
+      <td>-6.554281</td>
+    </tr>
+    <tr>
+      <td>2026-07-03</td>
+      <td>1130.00</td>
+      <td>1116.00</td>
+      <td>1188.01</td>
+      <td>1115.00</td>
+      <td>328618.0</td>
+      <td>-2.362205</td>
+    </tr>
+  </tbody>
+</table>
+    </section>
+
+    <section class="section panel">
+      <h2>4. 初步观察</h2>
+      <p>
+        从归一化走势图来看，两只股票在同一时间区间内的表现差异明显，说明它们虽然都属于 A 股市场，但行业属性、市场关注度和波动结构并不相同。
+        中国巨石的走势更偏传统制造材料风格，而中际旭创作为算力与光模块相关标的，波动更大，也更容易出现趋势加速。
+      </p>
+      <p>
+        这一步还不是正式策略回测，只是完成课程第一周最基本的数据分析闭环。后续如果继续做作业增强版，可以进一步增加：
+        均线指标、收益率分布、复权与不复权对比，以及不同时间窗口下的走势比较。
+      </p>
+    </section>
+
+    <section class="section panel">
+      <h2>5. 文件交付建议</h2>
+      <p class="footer-note">
+        交作业时，建议同时提交：PDF 报告、Notebook 文件、GitHub Pages 网址，以及必要的 CSV/截图作为佐证材料。
+      </p>
+    </section>
+  </div>
+</body>
+</html>
