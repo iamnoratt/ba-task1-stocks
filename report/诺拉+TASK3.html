@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>诺拉+TASK3</title>
+  <style>
+    :root {
+      --text: #111827;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "SimSun", "Songti SC", serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 28px auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 36px 44px 42px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-top: 24px;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin: 0 0 8px;
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin: 0 0 8px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .meta {
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 12px 0 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f3f4f6;
+    }
+
+    figure {
+      margin: 16px 0 18px;
+    }
+
+    img {
+      width: 100%;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    figcaption {
+      margin-top: 8px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .note {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>诺拉+TASK3</h1>
+    <p class="meta">任务主题：策略首秀，用均线交叉反映市场趋势和波动</p>
+
+    <h2>1. 任务目标</h2>
+    <p>本次 Task3 的目标是在前两次任务的数据准备和指标构建基础上，实现一个经典且可解释性较强的量化交易策略，即双均线策略。作业不仅要求给出策略结果，还要求说明信号形成方式、回测逻辑以及绩效指标含义，从而形成一份可追溯、可复现的白盒分析结果。</p>
+
+    <h2>2. 双均线策略概念说明</h2>
+    <p>双均线策略通过比较短周期均线与长周期均线的相对位置，来判断市场趋势是否发生变化。短均线对近期价格更敏感，长均线更平滑，更能代表中期趋势。</p>
+
+    <h3>2.1 金叉</h3>
+    <p>当短均线从下方向上突破长均线时，称为金叉。金叉通常表示短期动能增强，趋势可能转强，因此常被视为买入信号。</p>
+
+    <h3>2.2 死叉</h3>
+    <p>当短均线从上方向下跌破长均线时，称为死叉。死叉通常表示短期动能转弱，趋势可能下行，因此常被视为卖出信号。</p>
+
+    <p>本次实验将 <strong>MA5/MA15</strong> 作为默认参数，同时测试 <strong>MA5/MA20</strong> 和 <strong>MA10/MA30</strong> 两组参数，以观察不同均线周期对策略绩效的影响。</p>
+
+    <h2>3. 绩效指标概念说明</h2>
+    <ul>
+      <li><strong>累计回报（Cumulative Return）</strong>：策略从起始到结束总体获得的收益水平。</li>
+      <li><strong>最大回撤（MDD）</strong>：策略净值从某个历史高点回落到后续低点的最大跌幅，用于衡量回撤风险。</li>
+      <li><strong>夏普比率（Sharpe Ratio）</strong>：单位风险对应的收益水平，常用于衡量收益和波动之间的平衡。</li>
+    </ul>
+
+    <h2>4. 数据与回测设置</h2>
+    <ul>
+      <li>标的 1：中国巨石（600176）</li>
+      <li>标的 2：中际旭创（300308）</li>
+      <li>数据区间：2024-01-02 至 2026-07-03</li>
+      <li>数据来源：前两次任务中已保存的前复权日线数据</li>
+      <li>回测方式：仅做多，不做空</li>
+      <li>执行假设：当日依据均线关系生成信号，次日按持仓状态计入收益，以避免未来函数偏差</li>
+      <li>交易成本：本次基础实验中暂不加入手续费和滑点</li>
+    </ul>
+
+    <h2>5. Python 实现流程</h2>
+    <ol>
+      <li>加载已存储的股价数据</li>
+      <li>设定短均线和长均线周期，并计算均线</li>
+      <li>根据短均线与长均线关系生成买入与卖出信号</li>
+      <li>绘制股价、均线和交易信号图</li>
+      <li>计算每日策略收益率、累计净值与回撤</li>
+      <li>统计累计回报、最大回撤和夏普比率</li>
+      <li>对不同股票、不同均线周期进行对比分析</li>
+    </ol>
+
+    <h2>6. 回测结果汇总</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>股票</th>
+            <th>参数组合</th>
+            <th>累计回报</th>
+            <th>最大回撤</th>
+            <th>夏普比率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>中国巨石（600176）</td>
+            <td>MA5 / MA15</td>
+            <td>278.08%</td>
+            <td>-28.45%</td>
+            <td>1.65</td>
+          </tr>
+          <tr>
+            <td>中国巨石（600176）</td>
+            <td>MA5 / MA20</td>
+            <td>374.53%</td>
+            <td>-21.88%</td>
+            <td>1.84</td>
+          </tr>
+          <tr>
+            <td>中国巨石（600176）</td>
+            <td>MA10 / MA30</td>
+            <td>356.04%</td>
+            <td>-28.23%</td>
+            <td>1.79</td>
+          </tr>
+          <tr>
+            <td>中际旭创（300308）</td>
+            <td>MA5 / MA15</td>
+            <td>461.22%</td>
+            <td>-59.78%</td>
+            <td>1.52</td>
+          </tr>
+          <tr>
+            <td>中际旭创（300308）</td>
+            <td>MA5 / MA20</td>
+            <td>991.60%</td>
+            <td>-52.27%</td>
+            <td>1.98</td>
+          </tr>
+          <tr>
+            <td>中际旭创（300308）</td>
+            <td>MA10 / MA30</td>
+            <td>627.90%</td>
+            <td>-35.45%</td>
+            <td>1.80</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>7. 图表展示与解读</h2>
+
+    <figure>
+      <img src="../figures/china_jushi_ma_5_15_signals.png" alt="图1 中国巨石双均线策略交易信号图">
+      <figcaption>图1 中国巨石双均线策略交易信号图（MA5/MA15）</figcaption>
+    </figure>
+    <p>图1 将收盘价、MA5、MA15 以及金叉和死叉位置放在同一张图中。可以看到，当中国巨石出现持续上升趋势时，短均线会先行抬升并上穿长均线，从而形成买入信号；而当趋势减弱时，短均线回落并下穿长均线，形成卖出信号。</p>
+
+    <figure>
+      <img src="../figures/china_jushi_ma_5_15_equity.png" alt="图2 中国巨石策略净值与基准净值对比">
+      <figcaption>图2 中国巨石策略净值与基准净值对比（MA5/MA15）</figcaption>
+    </figure>
+    <p>图2 显示中国巨石在默认参数下，双均线策略净值整体高于买入并持有净值，说明该策略在样本期内具有较好的趋势跟随效果。同时，净值曲线中仍然存在阶段性回撤，说明即使是经典策略，也无法完全规避波动风险。</p>
+
+    <figure>
+      <img src="../figures/zhongji_xuchuang_ma_5_15_signals.png" alt="图3 中际旭创双均线策略交易信号图">
+      <figcaption>图3 中际旭创双均线策略交易信号图（MA5/MA15）</figcaption>
+    </figure>
+    <p>图3 反映出中际旭创的价格波动明显大于中国巨石，因此交易信号也更为频繁。趋势启动阶段，金叉信号能够较快进入上涨区间；但在高波动环境下，也会带来更多信号切换和更大的回撤风险。</p>
+
+    <figure>
+      <img src="../figures/zhongji_xuchuang_ma_5_15_equity.png" alt="图4 中际旭创策略净值与基准净值对比">
+      <figcaption>图4 中际旭创策略净值与基准净值对比（MA5/MA15）</figcaption>
+    </figure>
+    <p>图4 表明中际旭创在样本期内具有更高的收益弹性。双均线策略虽然实现了较高累计回报，但净值曲线也出现更明显的波动，说明高收益往往伴随着更高的最大回撤。</p>
+
+    <figure>
+      <img src="../figures/ma_strategy_metric_comparison.png" alt="图5 双均线策略参数组合绩效对比">
+      <figcaption>图5 双均线策略参数组合绩效对比</figcaption>
+    </figure>
+    <p>图5 对比了两只股票在三组均线参数下的累计回报、夏普比率和最大回撤。整体看，<strong>MA5/MA20</strong> 在本次样本中表现较优，说明适度拉长长均线可以减少部分市场噪声，在保留趋势收益的同时改善风险收益平衡。</p>
+
+    <h2>8. 不同股票与参数的观察</h2>
+    <ol>
+      <li>趋势明显、波动相对可控的股票，更适合使用双均线策略。</li>
+      <li>高波动股票在强趋势阶段能显著放大策略收益，但也容易带来更大的回撤。</li>
+      <li>短均线越短、长均线越短，信号通常越灵敏，但更容易受到市场噪声干扰。</li>
+      <li>适当拉长长均线周期，有助于减少频繁切换，提高策略稳定性。</li>
+    </ol>
+
+    <h2>9. 策略适用场景与应用心得</h2>
+    <p>双均线策略更适合在趋势较明显的市场环境中使用，特别适合量化策略入门阶段，因为其逻辑直观、实现简单、可解释性强。通过本次实验可以看出，单看收益并不足以评价策略优劣，还必须结合最大回撤和夏普比率一并分析。与此同时，同一策略在不同标的上的表现差异也较明显，说明参数优化和标的筛选同样重要。</p>
+
+    <h2>10. 局限与后续改进</h2>
+    <ul>
+      <li>本次回测未加入手续费、滑点和涨跌停约束</li>
+      <li>仅使用了基础的价格趋势信号，未加入其他过滤条件</li>
+      <li>未进行滚动样本外检验</li>
+    </ul>
+    <p>后续可以继续加入交易成本、风险控制规则以及布林带、RSI、MACD 等辅助指标，进一步提升策略的稳定性和现实可操作性。</p>
+
+    <p class="note">附注：本 HTML 提交版与 PDF 正文内容保持一致，便于按老师要求同时提交 `.pdf` 与 `.html` 两种格式。</p>
+  </main>
+</body>
+</html>

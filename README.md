@@ -1,26 +1,24 @@
-# Task2 Indicator Lab
+# Task3 Strategy Debut
 
-这个目录用于完成课程中“指标白盒分析”这一部分作业，重点不是只得到图，而是保留完整过程：
+本目录对应第三次量化工作坊任务：使用双均线策略完成交易信号构建、策略回测和绩效评估。
 
-- 原始数据
-- 指标公式
-- 计算步骤
-- 图表结果
-- HTML 工具原型
+## 目录说明
 
-## 当前目录结构
-
-- `indicator_lab_spec.md`：任务规格说明
-- `raw_data/`：原始 CSV 数据
-- `processed_data/`：后续计算后的指标数据
+- `raw_data/`：原始股价数据
+- `processed_data/`：双均线策略计算结果与绩效表
+- `figures/`：策略图表
 - `notebook/`：白盒 Notebook
-- `figures/`：导出图表
-- `html_tool/`：交互工具原型
-- `report/`：作业报告
+- `report/`：报告正文
+- `strategy_utils.py`：策略计算工具模块
+- `build_task3_assets.py`：自动生成 Task3 交付物的脚本
 
-## 建议完成顺序
+## 默认策略
 
-1. 先跑 `notebook/indicator_lab.ipynb`
-2. 再把计算后的 CSV 放进 `processed_data/`
-3. 再完善 `report/indicator_lab_report.md`
-4. 最后再继续做 `html_tool/index.html`
+- 短均线：MA5
+- 长均线：MA15
+
+## 实验参数组合
+
+- MA5 / MA15
+- MA5 / MA20
+- MA10 / MA30
