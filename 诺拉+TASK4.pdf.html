@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>诺拉+TASK4</title>
+  <style>
+    :root {
+      --text: #111827;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "SimSun", "Songti SC", serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 28px auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 36px 44px 42px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-top: 24px;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin: 0 0 8px;
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin: 0 0 8px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .meta {
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 12px 0 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f3f4f6;
+    }
+
+    figure {
+      margin: 16px 0 18px;
+    }
+
+    img {
+      width: 100%;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    figcaption {
+      margin-top: 8px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .note {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>诺拉+TASK4</h1>
+    <p class="meta">任务主题：深入理解并实践海龟交易策略</p>
+
+    <h2>1. 任务目标</h2>
+    <p>本次 Task4 的目标是在前几次任务完成数据准备、指标构建和双均线回测基础上，进一步理解并实践经典趋势跟随策略，即海龟交易策略。作业重点不只是展示最终收益曲线，而是解释海龟法则中的价格通道、ATR、止损条件以及这些规则如何共同构成一套系统化的交易框架。</p>
+
+    <h2>2. 海龟策略的核心思想与优势</h2>
+    <p>海龟交易策略的核心思想是“顺势突破、让利润奔跑、用规则控制风险”。其基本逻辑是：当价格向上突破一段时间内的最高价通道时，视为趋势开始，执行买入；当价格跌破退出通道或触发 ATR 止损时，执行卖出。</p>
+    <ul>
+      <li>完全规则化，减少主观判断干扰。</li>
+      <li>更适合趋势行情，能捕捉中期以上的波段收益。</li>
+      <li>使用 ATR 作为波动尺度，使止损规则具有自适应性。</li>
+      <li>便于参数比较、回测评估与后续优化。</li>
+    </ul>
+
+    <h2>3. 核心概念说明</h2>
+
+    <h3>3.1 高低点通道</h3>
+    <p>高低点通道是海龟策略的基础。常见做法是用过去若干天的最高价和最低价构成价格通道。上轨代表过去 N 天的最高价，下轨代表过去 N 天或更短退出窗口内的最低价。本次实验采用经典的 <strong>20 日上轨突破入场、10 日下轨跌破离场</strong> 作为默认参数，并额外测试 <strong>30/10</strong> 和 <strong>55/20</strong> 两组通道长度。</p>
+
+    <h3>3.2 ATR（Average True Range）</h3>
+    <p>ATR 是平均真实波幅，用于衡量市场波动程度。它不是方向指标，而是波动指标。ATR 越大，说明近期价格振幅越大，市场更活跃；ATR 越小，说明市场相对平稳。本次实验先计算每日真实波幅 TR，再对 TR 做 20 日移动平均，得到 ATR20。</p>
+
+    <h3>3.3 止损条件</h3>
+    <p>海龟策略中常见的止损方式，是按 ATR 设定波动性止损。本次实验采用 <strong>止损线 = 当前价格 - 2 × ATR</strong>。当持仓后价格跌破 10 日下轨，或跌破 2ATR 止损线时，视为卖出信号。这样可以让止损尺度随市场波动强弱自适应变化。</p>
+
+    <h2>4. 数据与回测设置</h2>
+    <ul>
+      <li>标的 1：中国巨石（600176）</li>
+      <li>标的 2：中际旭创（300308）</li>
+      <li>数据区间：2024-01-02 至 2026-07-03</li>
+      <li>数据来源：前几次任务中已保存的前复权日线数据</li>
+      <li>回测方式：仅做多，不做空</li>
+      <li>默认参数：20 / 10 / ATR20 / 2N</li>
+      <li>执行假设：当日根据收盘价与通道关系生成信号，次日按持仓状态计入收益，以避免未来函数偏差</li>
+      <li>交易成本：本次基础实验中未加入手续费和滑点</li>
+    </ul>
+
+    <h2>5. Python 实现流程</h2>
+    <ol>
+      <li>加载已存储的股价数据</li>
+      <li>计算高低点价格通道</li>
+      <li>计算真实波幅 TR 与 ATR</li>
+      <li>生成买入、卖出和止损信号</li>
+      <li>绘制股价、通道、ATR、持仓与交易信号图</li>
+      <li>对策略进行模拟交易与回测</li>
+      <li>计算累计回报、最大回撤和夏普比率等绩效指标</li>
+    </ol>
+
+    <h2>6. 回测结果汇总</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>股票</th>
+            <th>参数组合</th>
+            <th>累计回报</th>
+            <th>最大回撤</th>
+            <th>夏普比率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>中国巨石（600176）</td>
+            <td>20 / 10 / ATR20 / 2N</td>
+            <td>128.69%</td>
+            <td>-22.07%</td>
+            <td>1.18</td>
+          </tr>
+          <tr>
+            <td>中国巨石（600176）</td>
+            <td>30 / 10 / ATR20 / 2N</td>
+            <td>104.07%</td>
+            <td>-18.06%</td>
+            <td>1.05</td>
+          </tr>
+          <tr>
+            <td>中国巨石（600176）</td>
+            <td>55 / 20 / ATR20 / 2N</td>
+            <td>83.22%</td>
+            <td>-21.90%</td>
+            <td>0.94</td>
+          </tr>
+          <tr>
+            <td>中际旭创（300308）</td>
+            <td>20 / 10 / ATR20 / 2N</td>
+            <td>677.89%</td>
+            <td>-26.86%</td>
+            <td>1.99</td>
+          </tr>
+          <tr>
+            <td>中际旭创（300308）</td>
+            <td>30 / 10 / ATR20 / 2N</td>
+            <td>707.66%</td>
+            <td>-20.08%</td>
+            <td>2.22</td>
+          </tr>
+          <tr>
+            <td>中际旭创（300308）</td>
+            <td>55 / 20 / ATR20 / 2N</td>
+            <td>398.76%</td>
+            <td>-20.08%</td>
+            <td>1.85</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>7. 图表展示与解读</h2>
+
+    <figure>
+      <img src="../figures/china_jushi_turtle_20_10_signals.png" alt="图1 中国巨石海龟策略信号图">
+      <figcaption>图1 中国巨石海龟策略信号图（20/10/ATR20）</figcaption>
+    </figure>
+    <p>图1 展示了中国巨石在默认参数下的收盘价、20 日上轨、10 日下轨、ATR 止损线以及买卖信号。可以看到，价格向上突破上轨后形成买入信号；后续若跌破离场通道或止损线，则执行卖出。</p>
+
+    <figure>
+      <img src="../figures/china_jushi_turtle_20_10_equity.png" alt="图2 中国巨石海龟策略净值与基准净值对比">
+      <figcaption>图2 中国巨石海龟策略净值与基准净值对比（20/10/ATR20）</figcaption>
+    </figure>
+    <p>图2 显示中国巨石在默认海龟策略下累计回报约为 <strong>128.69%</strong>，最大回撤约为 <strong>-22.07%</strong>。这说明该股票在样本期内存在可捕捉的趋势行情，同时整体风险也较可控。</p>
+
+    <figure>
+      <img src="../figures/zhongji_xuchuang_turtle_20_10_signals.png" alt="图3 中际旭创海龟策略信号图">
+      <figcaption>图3 中际旭创海龟策略信号图（20/10/ATR20）</figcaption>
+    </figure>
+    <p>图3 反映出中际旭创的波动明显更大，因此 ATR 曲线也更高。突破发生后，策略收益扩张更快，但由于波动强，止损和通道离场的触发也更敏感。</p>
+
+    <figure>
+      <img src="../figures/zhongji_xuchuang_turtle_20_10_equity.png" alt="图4 中际旭创海龟策略净值与基准净值对比">
+      <figcaption>图4 中际旭创海龟策略净值与基准净值对比（20/10/ATR20）</figcaption>
+    </figure>
+    <p>图4 表明中际旭创在默认参数下累计回报约为 <strong>677.89%</strong>，夏普比率约为 <strong>1.99</strong>。这一结果说明海龟策略在强趋势高弹性标的上可能获得更高收益，但同时也要承受较明显的波动与回撤。</p>
+
+    <figure>
+      <img src="../figures/turtle_strategy_metric_comparison.png" alt="图5 海龟策略参数组合绩效对比">
+      <figcaption>图5 海龟策略参数组合绩效对比</figcaption>
+    </figure>
+    <p>图5 对比了两只股票在三组参数下的累计回报、夏普比率与最大回撤。整体看，中际旭创在 <strong>30/10/ATR20/2N</strong> 下表现最佳，而中国巨石在默认参数下表现更均衡。</p>
+
+    <h2>8. 不同参数与股票类型的观察</h2>
+    <ol>
+      <li>海龟策略更适合趋势明确、能持续突破的重要行情。</li>
+      <li>波动大的股票在突破成功时收益更高，但 ATR 也更大，对止损和回撤管理提出更高要求。</li>
+      <li>较短的入场通道更灵敏，能更快入场，但可能更容易受到市场噪声影响。</li>
+      <li>较长的通道能过滤部分假突破，但会减少交易次数，也可能错过一部分趋势早段收益。</li>
+    </ol>
+
+    <h2>9. 海龟法则的适应场景与使用心得</h2>
+    <p>海龟法则更适合趋势性较强的市场，也适合愿意耐心等待突破并持有趋势的交易者。通过本次实验可以看出，海龟策略的核心不是预测，而是等市场给出突破后再跟随；ATR 的引入使止损规则不再固定，而是随波动自适应变化；同一套规则在不同标的和不同参数下的表现差异明显，因此必须结合标的特征与风险偏好做比较，不能机械套用。</p>
+
+    <h2>10. 局限与后续改进</h2>
+    <ul>
+      <li>本次回测未加入手续费、滑点和仓位加减仓规则。</li>
+      <li>仅做多，未扩展到做空场景。</li>
+      <li>未进行样本外测试与滚动参数检验。</li>
+    </ul>
+    <p>后续可以继续加入海龟法则中的分批加仓逻辑，增加交易成本与滑点约束，并将海龟策略与均线、RSI、布林带等指标结合，形成组合过滤规则，进一步提升策略的稳定性和现实可操作性。</p>
+
+    <p class="note">附注：本 HTML 版用于本地预览和 GitHub 展示；正式提交时优先使用同目录下的 PDF 文件。</p>
+  </main>
+</body>
+</html>
